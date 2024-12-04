@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Leeds | Land Use Accessibility</title>
+    <meta name="viewport" content="Accessibility metric explorer with MapLibre GL JS." />
+    <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css' />
+    <script src='https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js'></script>
+    <style>
+        #map {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+
+        .legend {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 999;
+            background: white;
+            padding: 10px;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
+
+        .legend-title {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .legend-bar {
+            height: 10px;
+            width: 100%;
+            background: linear-gradient(to right, #f6f4d2, #d4e09b, #cbdfbd, #f19c79, #a44a3f);
+            border-radius: 5px;
+        }
+
+        .legend-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+        }
+
+        .data-source {
+            font-size: 10px;
+            color: grey;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map">
+        <a href="https://www.maptiler.com" style="position:absolute;left:10px;bottom:10px;z-index:999;">
+            <img src="https://api.maptiler.com/resources/logo.svg" alt="MapTiler logo">
+        </a>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+        <div class="legend-title">Richness</div>
+        <div class="legend-bar"></div>
+        <div class="legend-labels">
+            <span>Low</span>
+            <span>High</span>
+        </div>
+        <div class="data-source">Data Source: OpenStreetMap</div>
+    </div>
+    </div>
+
+    <script>
+        // Initialize map
+        let map = new maplibregl.Map({
+            container: 'map',
+            style: 'https://api.maptiler.com/maps/46c24713-bf1c-4289-a392-c0b13f2b81a6/style.json?key=LuQyF0uyEnwGzH9qVszX',
+            center: [-1.548567, 53.801277],
+            zoom: 13
+        });
+
+        // Add GeoJSON layer
+        map.on('load', function () {
+            map.addControl(new maplibregl.NavigationControl());
+
+            // Load GeoJSON data
+            map.addSource('richness_data', {
+                'type': 'geojson',
+                'data': 'data/leeds-bldg-cr.geojson' // Make sure this path is correct
+            });
+
+            // Add richness layer
+            map.addLayer({
+                'id': 'richness_layer',
+                'type': 'fill',
+                'source': 'richness_data',
+                'paint': {
+                    'fill-color': [
+                        'interpolate',
+                        ['linear'],
+                        ['get', 'richness'], // Access richness value
+                        0, '#f6f4d2',
+                        2, '#d4e09b',
+                        3, '#cbdfbd',
+                        4, '#f19c79',
+                        5, '#a44a3f'
+                    ]
+                }
+            });
+
+            // Display popups on click
+            map.on('click', 'richness_layer', function (e) {
+                let coordinates = e.lngLat;
+                let richness = e.features[0].properties.richness; // Ensure richness exists
+                let description =
+                    '<div class="popup">' +
+                    '<strong>Richness:</strong> ' + richness +
+                    '</div>';
+                new maplibregl.Popup()
+                    .setLngLat(coordinates)
+                    .setHTML(description)
+                    .addTo(map);
+            });
+
+            // Change cursor to pointer on hover
+            map.on('mouseenter', 'richness_layer', function () {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+
+            map.on('mouseleave', 'richness_layer', function () {
+                map.getCanvas().style.cursor = '';
+            });
+        });
+    </script>
+</body>
+
+</html>
