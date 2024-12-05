@@ -1,4 +1,5 @@
 # Accessibility to land use in Leeds
+## Overview
 This repository records a basic use of the pandana package using Leeds as an example. Using datasets solely from OpenStreetMap (OSM), Land Use Richness was calculated to represent how "rich" or varied the area around your building is in terms of different kinds of places you can easily reach within a 10-minute walking distance. This is not meant to indicate how varied the land uses are within that building, which could also be an interesting measure. The final result is shared using MapLibre GL JS, and Maptiler is used for the basemap. You can view it [here](http://harukihoshii.github.io/leeds-lu-richness/). 
 
 ## Basic workflow
